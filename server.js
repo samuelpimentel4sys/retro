@@ -8,7 +8,7 @@ const INDEX = path.join(__dirname, 'retro-road-trip.html');
 const rooms = new Map();
 
 function freshState() {
-  return { notes: {}, moods: {}, moodsByClient: {}, votesByClient: {}, actions: [{}, {}, {}], revision: 0 };
+  return { notes: {}, moods: {}, moodsByClient: {}, survivals: {}, survivalByClient: {}, votesByClient: {}, actions: [{}, {}, {}], revision: 0 };
 }
 
 function roomFor(id) {
@@ -67,6 +67,16 @@ function applyAction(room, action, clientId, name) {
       if (previous) state.moods[previous] = Math.max(0, (state.moods[previous] || 0) - 1);
       state.moodsByClient[clientId] = mood;
       state.moods[mood] = (state.moods[mood] || 0) + 1;
+      break;
+    }
+    case 'survival': {
+      const survival = safeText(action.survival, 30);
+      if (!survival) return false;
+      const previous = state.survivalByClient[clientId];
+      if (previous === survival) return false;
+      if (previous) state.survivals[previous] = Math.max(0, (state.survivals[previous] || 0) - 1);
+      state.survivalByClient[clientId] = survival;
+      state.survivals[survival] = (state.survivals[survival] || 0) + 1;
       break;
     }
     case 'vote': {

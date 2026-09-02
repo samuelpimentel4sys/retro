@@ -93,6 +93,14 @@
     .mood:hover, .mood.selected { transform: translateY(-7px) rotate(-2deg); background: var(--yellow); box-shadow: 7px 9px 0 var(--ink); }
     .mood-count { display: inline-grid; place-items: center; min-width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: white; font-size: 12px; margin-left: 4px; }
 
+    .survival-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 13px; margin-top: 24px; }
+    .survivor { border: 3px solid var(--ink); border-radius: 18px; padding: 14px 10px; min-height: 145px; background: white; box-shadow: 4px 4px 0 var(--ink); text-align: left; transition: .2s; }
+    .survivor:hover, .survivor.selected { transform: translateY(-5px) rotate(-1deg); background: var(--yellow); box-shadow: 6px 7px 0 var(--ink); }
+    .survivor-icon { display: block; font-size: 38px; line-height: 1; margin-bottom: 8px; }
+    .survivor strong { display: block; font-size: 15px; }
+    .survivor small { display: block; margin-top: 5px; line-height: 1.25; opacity: .72; font-weight: 700; }
+    .survival-count { float: right; display: inline-grid; place-items: center; min-width: 25px; height: 25px; border-radius: 50%; background: var(--ink); color: white; font-size: 12px; }
+
     .vote-board { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; max-height: 52vh; overflow-y: auto; padding: 4px 8px 12px 2px; }
     .vote-card { background: white; border: 2px solid var(--ink); border-radius: 15px; padding: 15px 15px 50px; min-height: 120px; position: relative; box-shadow: 4px 4px 0 rgba(23,34,59,.18); }
     .vote-card small { display: block; text-transform: uppercase; font-weight: 950; opacity: .55; margin-bottom: 7px; }
@@ -136,6 +144,7 @@
       .stop { display: flex; align-items: center; gap: 16px; text-align: left; }
       .stop-icon { margin: 0; flex: 0 0 62px; width: 62px; height: 62px; }
       .checkin { grid-template-columns: repeat(2,1fr); }
+      .survival-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .actions-grid { grid-template-columns: 1fr; }
       .car { opacity: .32; right: 2vw; }
       .bottombar { left: 12px; right: 12px; }
@@ -179,6 +188,24 @@
         <div class="stop"><div class="stop-icon">🕳️</div><div>Buracos</div></div>
         <div class="stop"><div class="stop-icon">🧭</div><div>Nova rota</div></div>
         <div class="stop"><div class="stop-icon">🏆</div><div>Boa chegada</div></div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="eyebrow">Quebra-gelo · 20 segundos por pessoa</div>
+      <h2>Qual foi seu modo de sobrevivência na sprint?</h2>
+      <p class="lead">Escolha um personagem e conte rapidamente o motivo.</p>
+      <div class="survival-grid" id="survivals">
+        <button class="survivor" data-survival="wizard"><span class="survival-count">0</span><span class="survivor-icon">🧙</span><strong>Mago</strong><small>Resolvi coisa que nem sei explicar como.</small></button>
+        <button class="survivor" data-survival="firefighter"><span class="survival-count">0</span><span class="survivor-icon">🔥</span><strong>Bombeiro</strong><small>Só apaguei incêndio.</small></button>
+        <button class="survivor" data-survival="snail"><span class="survival-count">0</span><span class="survivor-icon">🐌</span><strong>Caracol</strong><small>Avancei… mas com calma.</small></button>
+        <button class="survivor" data-survival="clown"><span class="survival-count">0</span><span class="survivor-icon">🤡</span><strong>Palhaço</strong><small>Ri pra não chorar.</small></button>
+        <button class="survivor" data-survival="zombie"><span class="survival-count">0</span><span class="survivor-icon">🧟</span><strong>Zumbi</strong><small>Estive presente fisicamente.</small></button>
+        <button class="survivor" data-survival="detective"><span class="survival-count">0</span><span class="survivor-icon">🕵️</span><strong>Detetive</strong><small>Tentei descobrir por que não funcionava.</small></button>
+        <button class="survivor" data-survival="octopus"><span class="survival-count">0</span><span class="survivor-icon">🐙</span><strong>Polvo</strong><small>Fazendo 8 coisas ao mesmo tempo.</small></button>
+        <button class="survivor" data-survival="sloth"><span class="survival-count">0</span><span class="survivor-icon">🦥</span><strong>Preguiça</strong><small>Meu cérebro pediu férias.</small></button>
+        <button class="survivor" data-survival="chicken"><span class="survival-count">0</span><span class="survivor-icon">🐓</span><strong>Galinha sem cabeça</strong><small>Corri muito, não sei pra onde.</small></button>
+        <button class="survivor" data-survival="hero"><span class="survival-count">0</span><span class="survivor-icon">🦸</span><strong>Super-herói</strong><small>Deu tudo errado, mas saiu.</small></button>
       </div>
     </section>
 
@@ -279,7 +306,7 @@
       localStorage.setItem('retro-participant-name', participantName);
     }
     const stateKey = `retro-road-trip-v2-${roomId || 'local'}`;
-    const defaultState = { notes: {}, moods: {}, moodsByClient: {}, votesByClient: {}, actions: [{},{},{}], revision: 0 };
+    const defaultState = { notes: {}, moods: {}, moodsByClient: {}, survivals: {}, survivalByClient: {}, votesByClient: {}, actions: [{},{},{}], revision: 0 };
     let state = load();
     let current = 0;
     let seconds = 300;
@@ -301,6 +328,13 @@
         if (previous) state.moods[previous] = Math.max(0, (state.moods[previous] || 0) - 1);
         state.moodsByClient[clientId] = action.mood;
         state.moods[action.mood] = (state.moods[action.mood] || 0) + 1;
+      }
+      if (action.type === 'survival') {
+        const previous = state.survivalByClient[clientId];
+        if (previous === action.survival) return false;
+        if (previous) state.survivals[previous] = Math.max(0, (state.survivals[previous] || 0) - 1);
+        state.survivalByClient[clientId] = action.survival;
+        state.survivals[action.survival] = (state.survivals[action.survival] || 0) + 1;
       }
       if (action.type === 'vote') {
         if ((state.votesByClient[clientId] || 0) >= 3) return false;
@@ -346,7 +380,7 @@
         lastRevision = payload.state.revision;
         state = { ...defaultState, ...payload.state };
         save();
-        renderAllBoards(); renderMoods(); renderVotes();
+        renderAllBoards(); renderMoods(); renderSurvivals(); renderVotes();
         if (!document.activeElement.closest?.('#actionsGrid')) renderActions();
       }
       async function poll() {
@@ -393,7 +427,8 @@
         const el = document.createElement('article'); el.className = 'note'; el.textContent = note.text;
         if (note.author) { const author = document.createElement('small'); author.className = 'note-author'; author.textContent = `por ${note.author}`; el.appendChild(author); }
         const actions = document.createElement('div'); actions.className = 'note-actions';
-        const votes = document.createElement('span'); votes.className = 'mini'; votes.textContent = `● ${note.votes || 0}`;
+        const votes = document.createElement('button'); votes.className = 'mini'; votes.textContent = `● ${note.votes || 0} + votar`; votes.title = 'Votar neste post-it';
+        votes.onclick = () => { if ((state.votesByClient[clientId] || 0) >= 3) return toast('Seus 3 votos já foram usados.'); dispatch({ type: 'vote', id: note.id }); };
         const del = document.createElement('button'); del.className = 'mini'; del.textContent = '×'; del.title = 'Excluir';
         del.onclick = () => dispatch({ type: 'deleteNote', category, id: note.id });
         actions.append(votes, del); el.appendChild(actions); host.appendChild(el);
@@ -414,6 +449,11 @@
       if (state.moodsByClient[clientId] !== btn.dataset.mood) dispatch({ type: 'mood', mood: btn.dataset.mood });
     });
     function renderMoods() { document.querySelectorAll('.mood').forEach(btn => { const n = state.moods[btn.dataset.mood] || 0; btn.querySelector('.mood-count').textContent = n; btn.classList.toggle('selected', state.moodsByClient[clientId] === btn.dataset.mood); }); }
+
+    document.querySelectorAll('.survivor').forEach(btn => btn.onclick = () => {
+      if (state.survivalByClient[clientId] !== btn.dataset.survival) dispatch({ type: 'survival', survival: btn.dataset.survival });
+    });
+    function renderSurvivals() { document.querySelectorAll('.survivor').forEach(btn => { const n = state.survivals[btn.dataset.survival] || 0; btn.querySelector('.survival-count').textContent = n; btn.classList.toggle('selected', state.survivalByClient[clientId] === btn.dataset.survival); }); }
 
     function allNotes() {
       return [...document.querySelectorAll('.board-slide')].flatMap(slide => (state.notes[slide.dataset.category] || []).map(note => ({ note, label: slide.dataset.label })));
@@ -471,7 +511,7 @@
     };
     document.getElementById('clear').onclick = async () => { if (!confirm('Limpar todos os post-its, votos e ações para todas as pessoas?')) return; if (await dispatch({ type: 'clear' })) { go(0); toast('Dinâmica limpa. Boa próxima viagem!'); } };
 
-    function renderAll() { renderAllBoards(); renderMoods(); renderVotes(); renderActions(); drawTimer(); }
+    function renderAll() { renderAllBoards(); renderMoods(); renderSurvivals(); renderVotes(); renderActions(); drawTimer(); }
     renderAll(); go(0); connect();
   </script>
 </body>
