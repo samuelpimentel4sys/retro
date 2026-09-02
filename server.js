@@ -12,7 +12,7 @@ function freshState() {
 }
 
 function roomFor(id) {
-  if (!rooms.has(id)) rooms.set(id, { state: freshState(), clients: new Map() });
+  if (!rooms.has(id)) rooms.set(id, { state: freshState(), clients: new Map(), participants: new Map() });
   return rooms.get(id);
 }
 
@@ -26,8 +26,16 @@ function safeText(value, max = 1000) {
 }
 
 function snapshot(room) {
-  const participants = [...room.clients.values()].map(({ name }) => name);
+  const now = Date.now();
+  for (const [id, participant] of room.participants) {
+    if (now - participant.lastSeen > 15_000) room.participants.delete(id);
+  }
+  const participants = [...room.participants.values()].map(({ name }) => name);
   return { type: 'state', state: room.state, participants };
+}
+
+function touchParticipant(room, clientId, name) {
+  if (clientId) room.participants.set(clientId, { name: safeText(name, 40) || 'Anônimo', lastSeen: Date.now() });
 }
 
 function broadcast(room) {
@@ -81,9 +89,12 @@ function applyAction(room, action, clientId, name) {
       state.actions[index][field] = safeText(action.value, 300);
       break;
     }
-    case 'clear':
+    case 'clear': {
+      const nextRevision = state.revision + 1;
       room.state = freshState();
-      break;
+      room.state.revision = nextRevision;
+      return true;
+    }
     default:
       return false;
   }
@@ -109,6 +120,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const eventMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9_-]{3,40})\/events$/);
   const actionMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9_-]{3,40})\/actions$/);
+  const stateMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9_-]{3,40})\/state$/);
 
   if (req.method === 'GET' && eventMatch) {
     const room = roomFor(eventMatch[1]);
@@ -125,6 +137,7 @@ const server = http.createServer(async (req, res) => {
     const previous = room.clients.get(clientId);
     if (previous) previous.res.end();
     room.clients.set(clientId, { res, name });
+    touchParticipant(room, clientId, name);
     broadcast(room);
     const heartbeat = setInterval(() => res.write(': ping\n\n'), 20_000);
     req.on('close', () => {
@@ -135,12 +148,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && stateMatch) {
+    const room = roomFor(stateMatch[1]);
+    const clientId = safeText(url.searchParams.get('clientId'), 80);
+    const name = safeText(url.searchParams.get('name'), 40) || 'Anônimo';
+    if (!clientId) return json(res, 400, { error: 'clientId obrigatório' });
+    touchParticipant(room, clientId, name);
+    return json(res, 200, snapshot(room));
+  }
+
   if (req.method === 'POST' && actionMatch) {
     try {
       const room = roomFor(actionMatch[1]);
       const body = await readBody(req);
       const clientId = safeText(body.clientId, 80);
       if (!clientId) return json(res, 400, { error: 'clientId obrigatório' });
+      touchParticipant(room, clientId, body.name);
       const changed = applyAction(room, body.action || {}, clientId, body.name);
       if (!changed) return json(res, 422, { error: 'Ação inválida ou limite atingido' });
       broadcast(room);

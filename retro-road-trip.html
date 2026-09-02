@@ -285,6 +285,8 @@
     let seconds = 300;
     let ticking = null;
     let connected = false;
+    let lastHealthy = 0;
+    let lastRevision = null;
 
     function load() { try { return { ...defaultState, ...JSON.parse(localStorage.getItem(stateKey) || '{}') }; } catch { return structuredClone(defaultState); } }
     function save() { localStorage.setItem(stateKey, JSON.stringify(state)); }
@@ -334,20 +336,34 @@
     function connect() {
       if (!collaborative) return;
       const presence = document.getElementById('presence');
-      const events = new EventSource(`/api/rooms/${roomId}/events?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`);
-      events.onopen = () => { connected = true; presence.classList.add('online'); };
-      events.onerror = () => { connected = false; presence.classList.remove('online'); presence.textContent = 'reconectando…'; };
-      events.onmessage = event => {
-        const payload = JSON.parse(event.data);
-        state = { ...defaultState, ...payload.state };
-        save();
+      const endpoint = `/api/rooms/${roomId}/state?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`;
+      function syncPayload(payload) {
+        lastHealthy = Date.now(); connected = true; presence.classList.add('online');
         const count = payload.participants.length;
         presence.textContent = `${count} ${count === 1 ? 'pessoa' : 'pessoas'}`;
         presence.title = payload.participants.join(', ');
+        if (lastRevision === payload.state.revision) return;
+        lastRevision = payload.state.revision;
+        state = { ...defaultState, ...payload.state };
+        save();
         renderAllBoards(); renderMoods(); renderVotes();
         if (!document.activeElement.closest?.('#actionsGrid')) renderActions();
-      };
-      setInterval(() => { if (!document.hidden) fetch('/api/info').catch(() => {}); }, 5 * 60 * 1000);
+      }
+      async function poll() {
+        try {
+          const response = await fetch(endpoint, { cache: 'no-store' });
+          if (!response.ok) throw new Error('Falha de sincronização');
+          syncPayload(await response.json());
+        } catch {
+          if (Date.now() - lastHealthy > 5_000) { connected = false; presence.classList.remove('online'); presence.textContent = 'offline'; }
+        }
+      }
+      const events = new EventSource(`/api/rooms/${roomId}/events?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`);
+      events.onopen = () => { lastHealthy = Date.now(); connected = true; presence.classList.add('online'); };
+      events.onerror = () => { if (Date.now() - lastHealthy > 5_000) presence.textContent = 'reconectando…'; };
+      events.onmessage = event => syncPayload(JSON.parse(event.data));
+      poll();
+      setInterval(() => { if (!document.hidden) poll(); }, 2_000);
     }
 
     const progress = document.getElementById('progress');
