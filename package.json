@@ -1,0 +1,13 @@
+{
+  "name": "retro-road-trip-colaborativa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Retrospectiva colaborativa em tempo real, sem dependências externas.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: retro-road-trip-colaborativa
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/info
+    autoDeploy: true
