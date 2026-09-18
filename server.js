@@ -5,13 +5,22 @@ const os = require('node:os');
 
 const PORT = Number(process.env.PORT || 3000);
 const rooms = new Map();
+const NEXUS_PHASE_SECONDS = [600, 600, 1200, 900, 900, 600, 600];
 
 function retroState() {
   return { notes: {}, moods: {}, moodsByClient: {}, survivals: {}, survivalByClient: {}, votesByClient: {}, actions: [{}, {}, {}], revision: 0 };
 }
 
 function nexusState() {
-  return { notes: [], votesByClient: {}, bets: {}, authorsHidden: true, revision: 0 };
+  return {
+    notes: [],
+    votesByClient: {},
+    bets: {},
+    authorsHidden: true,
+    musicEnabled: false,
+    timer: { phaseIndex: 0, duration: NEXUS_PHASE_SECONDS[0], remaining: NEXUS_PHASE_SECONDS[0], endsAt: null, running: false, sequence: 0 },
+    revision: 0
+  };
 }
 
 function safeText(value, max = 1000) {
@@ -113,8 +122,21 @@ function applyNexusAction(room, action, clientId, name) {
     case 'moveNote': {
       const note = findNexusNote(state, action.id);
       const zone = safeText(action.zone, 40);
-      if (!note || !zone || (note.votes || 0) > 0) return false;
+      if (!note || !zone) return false;
+      if (note.zone === zone && note.groupId) {
+        delete note.groupId;
+        break;
+      }
+      if ((note.votes || 0) > 0) return false;
       note.zone = zone;
+      delete note.groupId;
+      break;
+    }
+    case 'stackNote': {
+      const source = findNexusNote(state, action.id);
+      const target = findNexusNote(state, action.targetId);
+      if (!source || !target || source === target || source.zone !== target.zone || (source.votes || 0) > 0) return false;
+      source.groupId = target.groupId || target.id;
       break;
     }
     case 'changeVote': {
@@ -143,6 +165,40 @@ function applyNexusAction(room, action, clientId, name) {
     case 'setAuthorsHidden': {
       if (room.masterClientId !== clientId || typeof action.hidden !== 'boolean') return false;
       state.authorsHidden = action.hidden;
+      break;
+    }
+    case 'startPhase': {
+      const phaseIndex = Number(action.phaseIndex);
+      if (room.masterClientId !== clientId || !Number.isInteger(phaseIndex) || phaseIndex < 0 || phaseIndex >= NEXUS_PHASE_SECONDS.length) return false;
+      const duration = NEXUS_PHASE_SECONDS[phaseIndex];
+      state.timer = { phaseIndex, duration, remaining: duration, endsAt: Date.now() + duration * 1000, running: true, sequence: (state.timer?.sequence || 0) + 1 };
+      break;
+    }
+    case 'pauseTimer': {
+      if (room.masterClientId !== clientId || !state.timer?.running) return false;
+      state.timer.remaining = Math.max(0, Math.ceil((state.timer.endsAt - Date.now()) / 1000));
+      state.timer.endsAt = null;
+      state.timer.running = false;
+      break;
+    }
+    case 'resumeTimer': {
+      if (room.masterClientId !== clientId || state.timer?.running || !state.timer?.remaining) return false;
+      state.timer.endsAt = Date.now() + state.timer.remaining * 1000;
+      state.timer.running = true;
+      state.timer.sequence = (state.timer.sequence || 0) + 1;
+      break;
+    }
+    case 'resetTimer': {
+      if (room.masterClientId !== clientId) return false;
+      const phaseIndex = Number.isInteger(Number(action.phaseIndex)) ? Number(action.phaseIndex) : state.timer?.phaseIndex || 0;
+      if (phaseIndex < 0 || phaseIndex >= NEXUS_PHASE_SECONDS.length) return false;
+      const duration = NEXUS_PHASE_SECONDS[phaseIndex];
+      state.timer = { phaseIndex, duration, remaining: duration, endsAt: null, running: false, sequence: state.timer?.sequence || 0 };
+      break;
+    }
+    case 'setMusic': {
+      if (room.masterClientId !== clientId || typeof action.enabled !== 'boolean') return false;
+      state.musicEnabled = action.enabled;
       break;
     }
     case 'updateBet': {
@@ -188,7 +244,7 @@ function snapshot(room, clientId) {
   for (const [id, participant] of room.participants) {
     if (now - participant.lastSeen > 15_000) room.participants.delete(id);
   }
-  return { type: 'state', state: room.state, participants: [...room.participants.values()].map(({ name }) => name), isMaster: room.masterClientId === clientId };
+  return { type: 'state', state: room.state, participants: [...room.participants.values()].map(({ name }) => name), isMaster: room.masterClientId === clientId, serverTime: Date.now() };
 }
 
 function touchParticipant(room, clientId, name) {

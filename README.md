@@ -33,10 +33,12 @@ http://192.168.1.28:3000/?room=retro-abc123
 ## O que é compartilhado
 
 - participantes online e autoria dos post-its;
-- inclusão, exclusão e movimentação de post-its;
+- inclusão, exclusão, movimentação e agrupamento de post-its em pilhas;
 - check-ins da Retro;
 - votação do Workshop com três votos por participante em cada quadro, incluindo repetição e remoção;
 - modo de reflexão do Workshop, no qual o master revela ou oculta os autores dos post-its;
+- cronômetro compartilhado por fase, com lançamento visual para todos e controle exclusivo do master;
+- música ambiente opcional, ativada pelo master e liberada individualmente conforme a permissão de áudio do navegador;
 - planos de ação da Retro e apostas do Workshop;
 - limpeza da dinâmica para todas as pessoas.
 
