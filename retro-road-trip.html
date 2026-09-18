@@ -352,7 +352,7 @@
     async function dispatch(action) {
       if (!collaborative) return applyLocal(action);
       try {
-        const response = await fetch(`/api/rooms/${roomId}/actions`, {
+        const response = await fetch(`/api/activities/retro/rooms/${roomId}/actions`, {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ clientId, name: participantName, action })
         });
@@ -370,7 +370,7 @@
     function connect() {
       if (!collaborative) return;
       const presence = document.getElementById('presence');
-      const endpoint = `/api/rooms/${roomId}/state?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`;
+      const endpoint = `/api/activities/retro/rooms/${roomId}/state?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`;
       function syncPayload(payload) {
         lastHealthy = Date.now(); connected = true; presence.classList.add('online');
         const count = payload.participants.length;
@@ -392,7 +392,7 @@
           if (Date.now() - lastHealthy > 5_000) { connected = false; presence.classList.remove('online'); presence.textContent = 'offline'; }
         }
       }
-      const events = new EventSource(`/api/rooms/${roomId}/events?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`);
+      const events = new EventSource(`/api/activities/retro/rooms/${roomId}/events?clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`);
       events.onopen = () => { lastHealthy = Date.now(); connected = true; presence.classList.add('online'); };
       events.onerror = () => { if (Date.now() - lastHealthy > 5_000) presence.textContent = 'reconectando…'; };
       events.onmessage = event => syncPayload(JSON.parse(event.data));

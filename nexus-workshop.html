@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Workshop de Produto | 90 min</title>
+<style>
+:root{--navy:#071226;--navy2:#0d1b36;--orange:#f97316;--blue:#2563eb;--green:#10b981;--yellow:#facc15;--purple:#8b5cf6;--red:#ef4444;--ink:#172033;--muted:#64748b;--bg:#eef2f7;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+header{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:18px 24px;box-shadow:0 4px 18px #0002}
+.header-inner{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+h1{margin:0;font-size:25px}.subtitle{color:#a9b6ca;font-size:13px;margin-top:4px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,.home{border:0;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer;font:inherit;text-decoration:none}
+.btn{background:#fff;color:var(--navy)}.btn.orange{background:var(--orange);color:#fff}.btn.dark{background:#182744;color:#fff;border:1px solid #ffffff25}
+.timer{font-variant-numeric:tabular-nums;background:#0005;padding:9px 12px;border-radius:10px;font-weight:800;min-width:70px;text-align:center}
+.presence{display:inline-flex;align-items:center;gap:7px;color:#cad4e3;font-size:12px;font-weight:800}.presence::before{content:"";width:8px;height:8px;border-radius:50%;background:#94a3b8}.presence.online::before{background:var(--green);box-shadow:0 0 0 3px #10b98130}
+main{max-width:1500px;margin:22px auto;padding:0 18px 80px}
+.session-note{max-width:1500px;margin:16px auto -6px;padding:0 18px}.session-note-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#ffffffc9;color:#475569;font-size:12px}.session-note strong{color:var(--navy)}
+.frame{background:#fff;border-radius:18px;margin:0 0 22px;box-shadow:0 5px 22px #12203b12;overflow:hidden;border:1px solid #dfe5ee}
+.frame-head{padding:18px 20px;background:linear-gradient(90deg,#f8fafc,#fff);border-bottom:1px solid #e5eaf1}
+.frame-head h2{margin:0;font-size:19px}.frame-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.content{padding:20px}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#fff0e7;color:#c2410c;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.timeline{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}.milestone{border:1px solid #dbe2eb;border-radius:13px;padding:13px;min-height:120px;position:relative}
+.milestone .date{font-size:12px;color:var(--orange);font-weight:900}.milestone .title{font-weight:800;margin:7px 0 4px}.milestone .desc{font-size:12px;color:var(--muted);line-height:1.35}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}.kpi{border-radius:14px;padding:15px;background:#f8fafc;border-left:5px solid var(--orange)}.kpi:nth-child(2){border-color:var(--blue)}.kpi:nth-child(3){border-color:var(--green)}.kpi:nth-child(4){border-color:var(--purple)}.kpi:nth-child(5){border-color:#06b6d4}
+.kpi b{font-size:24px;display:block}.kpi span{font-size:11px;color:var(--muted)}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}.three{grid-template-columns:repeat(3,1fr)}
+.prompt{font-weight:800;margin:0 0 10px}.hint{font-size:12px;color:var(--muted);margin-bottom:12px}
+.dropzone{min-height:210px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:9px;align-content:flex-start}
+.zone-title{font-size:12px;font-weight:900;color:#475569;margin-bottom:7px}.add{display:flex;gap:8px;margin:10px 0}.add input,.add select{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:9px;padding:9px}
+.note{width:170px;min-height:108px;padding:10px 10px 34px;border-radius:8px;box-shadow:0 3px 9px #0001;cursor:grab;position:relative;white-space:pre-wrap;word-break:break-word;font-size:12px;transition:transform .15s,box-shadow .15s}.note:hover{transform:translateY(-2px) rotate(-.4deg);box-shadow:0 7px 16px #0002}
+.note .author{display:block;margin-top:7px;font-size:10px;opacity:.55;font-weight:800}.note .x{position:absolute;right:5px;top:3px;border:0;background:transparent;padding:1px;color:#475569;font-size:12px}.note-votes{position:absolute;bottom:5px;right:7px;display:flex;align-items:center;gap:3px;background:#ffffffa8;border-radius:8px;padding:2px 4px}.vote-control{border:0;background:transparent;padding:1px 4px;color:var(--navy);font-size:12px}.vote-total{min-width:18px;text-align:center;font-weight:900}.my-votes{color:#c2410c;font-size:9px;font-weight:900}
+.zone-budget{width:100%;display:flex;justify-content:flex-end;align-items:center;gap:5px;color:#64748b;font-size:10px;font-weight:800}.zone-budget b{display:inline-grid;place-items:center;min-width:27px;height:20px;border-radius:999px;background:#e8edf4;color:var(--navy)}.zone-budget.complete b{background:#fed7aa;color:#9a3412}
+.author-mode{padding:6px 9px;border:1px solid #ffffff2b;border-radius:999px;color:#cbd5e1;font-size:11px;font-weight:800}.master-only[hidden]{display:none}
+.yellow{background:#fff6b8}.green{background:#d8f7e8}.blue{background:#dceafe}.purple{background:#e9ddff}.pink{background:#ffe0ea}.gray{background:#e9edf3}
+.instructions{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px;font-size:12px;line-height:1.45}
+.tree{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.root{grid-column:1/-1;text-align:center;background:var(--navy);color:#fff;border-radius:14px;padding:15px;font-weight:900;font-size:17px}
+.branch{border:1px solid #dbe2eb;border-radius:14px;padding:13px;background:#fbfdff}.branch h3{margin:0 0 5px;font-size:15px}.branch p{font-size:11px;color:var(--muted);margin:0 0 9px}.opps{min-height:160px}
+.vote-note{border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:9px;font-size:12px;margin:7px 0;display:flex;justify-content:space-between;gap:8px}.vote-count{font-weight:900;color:var(--orange)}
+.bet{border:2px solid #dbe2eb;border-radius:14px;padding:14px;background:#fff}.bet h3{margin:0 0 10px}.bet label{display:block;font-size:11px;font-weight:800;color:#475569;margin:8px 0 4px}.bet input,.bet textarea{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font:inherit}.bet textarea{min-height:62px;resize:vertical}
+.small{font-size:11px;color:var(--muted)}.toast{position:fixed;left:50%;bottom:25px;z-index:100;transform:translate(-50%,20px);opacity:0;background:var(--navy);color:#fff;padding:10px 17px;border-radius:999px;font-size:13px;font-weight:800;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1050px){.timeline{grid-template-columns:repeat(4,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}.three,.tree{grid-template-columns:1fr}.root{grid-column:auto}.columns{grid-template-columns:1fr}}
+@media(max-width:650px){.timeline{grid-template-columns:1fr 1fr}.header-inner{align-items:flex-start;flex-direction:column}.controls{width:100%}.note{width:100%}}
+@media print{header,.add,.note .x,.note-votes,.toast,.zone-budget{display:none!important}main{margin-top:0}.frame{break-inside:avoid;box-shadow:none}}
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+  <div><h1>🚀 Nexus — Workshop de Produto</h1><div class="subtitle">De MVP + uso real → tese de valor → oportunidades → próximas apostas</div></div>
+  <div class="controls">
+    <a class="btn home" href="/">⌂ Home</a><span class="presence" id="presence">offline</span>
+    <button class="btn dark" id="share">🔗 Convidar</button><span class="author-mode" id="authorMode">Autores ocultos</span><button class="btn dark master-only" id="authorVisibility" hidden>👁 Revelar autores</button><div class="timer" id="timer">90:00</div>
+    <button class="btn dark" onclick="toggleTimer()">▶ / ❚❚</button><button class="btn orange" onclick="resetBoard()">↺ Limpar board</button><button class="btn" onclick="window.print()">Imprimir / PDF</button>
+  </div>
+</div></header>
+<div class="session-note"><div class="session-note-inner"><span id="sessionHint"><strong>Modo reflexão:</strong> os autores ficam ocultos até o master revelar.</span><span>Arraste post-its sem votos para reorganizar.</span></div></div>
+
+<main>
+<section class="frame"><div class="frame-head"><span class="badge">10 min · contexto</span><h2>1. Nossa jornada: o que construímos até aqui?</h2><p>Comece pelos fatos. A provocação: <b>“Nós já construímos, já temos uso. Agora precisamos transformar uso em uma tese clara de valor.”</b></p></div>
+<div class="content"><div class="timeline">
+  <div class="milestone"><div class="date">ABR/26</div><div class="title">Construímos do zero</div><div class="desc">Início da construção do Nexus.</div></div>
+  <div class="milestone"><div class="date">MAI/26</div><div class="title">Beta testers</div><div class="desc">Primeiros usuários validando a solução.</div></div>
+  <div class="milestone"><div class="date">JUL/26</div><div class="title">MVP pronto</div><div class="desc">Estratégia interna + MVP em funcionamento.</div></div>
+  <div class="milestone"><div class="date">SET/26</div><div class="title">Necessidade de mercado</div><div class="desc">Começamos a olhar para valor e demanda externa.</div></div>
+  <div class="milestone"><div class="date">OUT/NOV/26</div><div class="title">Arrumar a casa</div><div class="desc">Consolidar produto, valor, adoção e evidências.</div></div>
+  <div class="milestone"><div class="date">DEZ/26</div><div class="title">60% + 2 cases</div><div class="desc">Adoção Foursys e casos mensuráveis de valor.</div></div>
+  <div class="milestone"><div class="date">JAN/27</div><div class="title">Ir ao mercado</div><div class="desc">Produto preparado para comercialização.</div></div>
+</div><div class="kpis"><div class="kpi"><b>432</b><span>usuários registrados</span></div><div class="kpi"><b>208</b><span>usuários ativos</span></div><div class="kpi"><b>48,1%</b><span>da base registrada ativa</span></div><div class="kpi"><b>7.940</b><span>interações consolidadas</span></div><div class="kpi"><b>38,17</b><span>interações por ativo</span></div></div>
+<div class="instructions" style="margin-top:14px"><b>Facilitador:</b> não entre em solução ainda. Mostre a evolução e pergunte: <i>“O que esses fatos nos permitem afirmar? E o que ainda estamos supondo?”</i></div></div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">10 min · diagnóstico</span><h2>2. O que já sabemos × o que ainda não sabemos?</h2><p>2 post-its por pessoa. Depois agrupem e conversem sobre os padrões.</p></div>
+<div class="content columns">
+  <div><div class="zone-title">🟢 JÁ SABEMOS</div><div id="known" class="dropzone"></div><div class="add"><input id="knownInput" placeholder="Digite um aprendizado..."><button class="btn orange" onclick="addNote('knownInput','known','green')">+ Post-it</button></div></div>
+  <div><div class="zone-title">🟡 AINDA NÃO SABEMOS</div><div id="unknown" class="dropzone"></div><div class="add"><input id="unknownInput" placeholder="Digite uma dúvida..."><button class="btn orange" onclick="addNote('unknownInput','unknown','yellow')">+ Post-it</button></div></div>
+</div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">25 min · tese</span><h2>3. A tese do Nexus</h2><p>Não buscar features. Buscar fronteiras, público e problema que o Nexus resolve.</p></div>
+<div class="content"><div class="columns">
+  <div><div class="zone-title">NEXUS É</div><div id="is" class="dropzone"></div><div class="add"><input id="isInput" placeholder="Ex.: ..."><button class="btn orange" onclick="addNote('isInput','is','blue')">+</button></div></div>
+  <div><div class="zone-title">NEXUS NÃO É</div><div id="isnot" class="dropzone"></div><div class="add"><input id="isnotInput" placeholder="Ex.: ..."><button class="btn orange" onclick="addNote('isnotInput','isnot','gray')">+</button></div></div>
+  <div><div class="zone-title">NEXUS FAZ</div><div id="does" class="dropzone"></div><div class="add"><input id="doesInput" placeholder="Ex.: ..."><button class="btn orange" onclick="addNote('doesInput','does','green')">+</button></div></div>
+  <div><div class="zone-title">NEXUS NÃO FAZ</div><div id="doesnot" class="dropzone"></div><div class="add"><input id="doesnotInput" placeholder="Ex.: ..."><button class="btn orange" onclick="addNote('doesnotInput','doesnot','pink')">+</button></div></div>
+</div><hr style="border:0;border-top:1px solid #e5e7eb;margin:20px 0"><div class="columns">
+  <div><p class="prompt">👤 Quem sentiria mais falta se o Nexus desaparecesse amanhã?</p><div id="persona" class="dropzone"></div><div class="add"><input id="personaInput" placeholder="Persona / público"><button class="btn orange" onclick="addNote('personaInput','persona','purple')">+</button></div></div>
+  <div><p class="prompt">🎯 Qual “trabalho” essa pessoa está tentando realizar?</p><div id="job" class="dropzone"></div><div class="add"><input id="jobInput" placeholder="Não escreva “usar IA”; escreva o problema"><button class="btn orange" onclick="addNote('jobInput','job','yellow')">+</button></div></div>
+</div></div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">15 min · proposta de valor</span><h2>3B. Framework — chegar à frase de valor do Nexus</h2><p>Construam a frase a partir do problema e do resultado, não das funcionalidades. Primeiro preencham os blocos; só depois escrevam a frase.</p></div>
+<div class="content"><div class="instructions" style="margin-bottom:16px"><b>Regra de ouro:</b> se a frase poderia descrever qualquer plataforma de IA, ela ainda está genérica. A frase precisa deixar claro <b>para quem</b>, <b>qual problema/trabalho</b>, <b>qual resultado</b> e <b>por que o Nexus</b>.</div>
+<div class="columns">
+  <div><div class="zone-title">① PÚBLICO PRIORITÁRIO</div><div id="vpPersona" class="dropzone" style="min-height:115px"></div><div class="add"><input id="vpPersonaInput" placeholder="Quem tem a dor mais relevante?"><button class="btn orange" onclick="addNote('vpPersonaInput','vpPersona','purple')">+</button></div></div>
+  <div><div class="zone-title">② PROBLEMA / JOB</div><div id="vpJob" class="dropzone" style="min-height:115px"></div><div class="add"><input id="vpJobInput" placeholder="O que essa pessoa precisa resolver?"><button class="btn orange" onclick="addNote('vpJobInput','vpJob','yellow')">+</button></div></div>
+  <div><div class="zone-title">③ RESULTADO / VALOR</div><div id="vpOutcome" class="dropzone" style="min-height:115px"></div><div class="add"><input id="vpOutcomeInput" placeholder="O que muda para ela/empresa?"><button class="btn orange" onclick="addNote('vpOutcomeInput','vpOutcome','green')">+</button></div></div>
+  <div><div class="zone-title">④ DIFERENCIAL DO NEXUS</div><div id="vpDiff" class="dropzone" style="min-height:115px"></div><div class="add"><input id="vpDiffInput" placeholder="Por que Nexus e não uma alternativa?"><button class="btn orange" onclick="addNote('vpDiffInput','vpDiff','blue')">+</button></div></div>
+</div>
+<div style="margin-top:18px;padding:16px;border-radius:14px;background:#071226;color:white"><div style="font-size:11px;font-weight:900;color:#fb923c;text-transform:uppercase;letter-spacing:.05em">Fórmula para escrever a frase</div><div style="font-size:18px;line-height:1.55;margin-top:7px"><b>Para [público]</b>, que precisa <b>[resolver problema/job]</b>, o <b>Nexus</b> é uma forma de <b>[gerar resultado]</b>, porque <b>[diferencial]</b>.</div><div style="font-size:11px;color:#a9b6ca;margin-top:8px">Versão curta: “Nexus ajuda [quem] a [resultado] ao [mecanismo/diferencial].”</div></div>
+<div style="margin-top:16px"><div class="zone-title">⑤ CANDIDATAS DE FRASE DE VALOR</div><div id="vpPhrase" class="dropzone" style="min-height:130px"></div><div class="add"><input id="vpPhraseInput" placeholder="Escreva uma frase completa, sem listar features"><button class="btn orange" onclick="addNote('vpPhraseInput','vpPhrase','blue')">+ Frase</button></div></div>
+<div class="columns three" style="margin-top:16px"><div class="instructions"><b>Teste 1 — Clareza</b><br>Uma pessoa de fora do time entende em 10 segundos?</div><div class="instructions"><b>Teste 2 — Relevância</b><br>O benefício é importante o suficiente para mudar comportamento?</div><div class="instructions"><b>Teste 3 — Diferenciação</b><br>Isso explica por que escolher Nexus em vez de uma alternativa?</div></div>
+<div class="instructions" style="margin-top:14px"><b>Critério de convergência:</b> escolham a frase que melhor representa a tese que o time consegue sustentar com evidências — não necessariamente a frase mais “bonita”.</div></div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">20 min · oportunidades</span><h2>4. Árvore de oportunidades: o que precisa ser verdade?</h2><p>Partam dos resultados e desçam para causas/oportunidades. <b>Não colocar features.</b></p></div>
+<div class="content"><div class="tree"><div class="root">NEXUS — PRÓXIMO PATAMAR</div>
+  <div class="branch"><h3>📈 60% de adoção Foursys</h3><p>O que precisa ser verdade para as pessoas adotarem e continuarem usando?</p><div id="opp60" class="dropzone opps"></div><div class="add"><input id="opp60Input" placeholder="Oportunidade / barreira"><button class="btn orange" onclick="addNote('opp60Input','opp60','blue')">+</button></div></div>
+  <div class="branch"><h3>💰 2 cases de valor</h3><p>O que precisa ser verdade para demonstrar impacto mensurável?</p><div id="opp2" class="dropzone opps"></div><div class="add"><input id="opp2Input" placeholder="Oportunidade / barreira"><button class="btn orange" onclick="addNote('opp2Input','opp2','green')">+</button></div></div>
+  <div class="branch"><h3>🌎 Mercado 2027</h3><p>O que precisa ser verdade para o Nexus estar pronto para o mercado?</p><div id="oppMarket" class="dropzone opps"></div><div class="add"><input id="oppMarketInput" placeholder="Oportunidade / barreira"><button class="btn orange" onclick="addNote('oppMarketInput','oppMarket','purple')">+</button></div></div>
+</div><div class="instructions" style="margin-top:14px"><b>Exemplo:</b> em vez de “integrar Microsoft”, escrever “reduzir a fricção para acessar o Nexus no fluxo de trabalho do usuário”.</div></div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">10 min · priorização</span><h2>5. Votação: quais oportunidades mudariam o jogo?</h2><p>Escolham as oportunidades que, se resolvidas, mais aproximam o Nexus dos três resultados. Cada pessoa tem <b>3 votos em cada quadro</b> e pode concentrá-los no mesmo post-it.</p></div>
+<div class="content"><div id="voteList"></div><div class="small">Use <b>+</b> para votar e <b>−</b> para remover seu voto. O contador de cada quadro mostra o seu limite.</div></div></section>
+
+<section class="frame"><div class="frame-head"><span class="badge">15 min · decisão</span><h2>6. Nossas 3 apostas para o próximo ciclo</h2><p>Saímos com hipóteses e evidências de sucesso — não com um backlog de funcionalidades.</p></div>
+<div class="content"><div class="columns three">
+  <div class="bet"><h3>🚀 BET #1</h3><label>Oportunidade</label><input id="bet1o"><label>Hipótese</label><textarea id="bet1h" placeholder="Acreditamos que..."></textarea><label>Para quem</label><input id="bet1p"><label>Faremos</label><textarea id="bet1f" placeholder="Apostaremos em..."></textarea><label>Saberemos que funcionou quando</label><textarea id="bet1s" placeholder="Evidência / métrica..."></textarea></div>
+  <div class="bet"><h3>🚀 BET #2</h3><label>Oportunidade</label><input id="bet2o"><label>Hipótese</label><textarea id="bet2h" placeholder="Acreditamos que..."></textarea><label>Para quem</label><input id="bet2p"><label>Faremos</label><textarea id="bet2f" placeholder="Apostaremos em..."></textarea><label>Saberemos que funcionou quando</label><textarea id="bet2s" placeholder="Evidência / métrica..."></textarea></div>
+  <div class="bet"><h3>🚀 BET #3</h3><label>Oportunidade</label><input id="bet3o"><label>Hipótese</label><textarea id="bet3h" placeholder="Acreditamos que..."></textarea><label>Para quem</label><input id="bet3p"><label>Faremos</label><textarea id="bet3f" placeholder="Apostaremos em..."></textarea><label>Saberemos que funcionou quando</label><textarea id="bet3s" placeholder="Evidência / métrica..."></textarea></div>
+</div><div class="instructions" style="margin-top:16px"><b>Fechamento:</b> “Nossa tese de valor é ___; nosso público prioritário é ___; e nossas 3 apostas para chegar a 60% + 2 cases + mercado 2027 são ___.”</div></div></section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const collaborative=/^https?:$/.test(location.protocol);
+const makeId=()=>crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const params=new URLSearchParams(location.search);
+let roomId=(params.get('room')||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,40);
+if(collaborative&&roomId.length<3){roomId=`nexus-${Math.random().toString(36).slice(2,8)}`;params.set('room',roomId);history.replaceState(null,'',`${location.pathname}?${params}${location.hash}`)}
+const clientId=sessionStorage.getItem('activities-client-id')||makeId();
+sessionStorage.setItem('activities-client-id',clientId);
+let participantName=localStorage.getItem('activities-participant-name')||'';
+if(collaborative&&!participantName){participantName=(prompt('Como você quer aparecer neste workshop?','')||'').trim().slice(0,40)||`Participante ${clientId.slice(0,4)}`;localStorage.setItem('activities-participant-name',participantName)}
+const stateKey=`nexus-workshop-v3-${roomId||'local'}`;
+const defaultState={notes:[],votesByClient:{},bets:{},authorsHidden:true,revision:0};
+let state=load(),lastRevision=null,lastHealthy=0,hasMasterRole=!collaborative,timer=90*60,running=false,timerId=null;
+
+function load(){try{return{...structuredClone(defaultState),...JSON.parse(localStorage.getItem(stateKey)||'{}')}}catch{return structuredClone(defaultState)}}
+function save(){localStorage.setItem(stateKey,JSON.stringify(state))}
+function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1900)}
+function myVotes(){return state.votesByClient[clientId]||{}}
+function myVotesFor(noteId){return Number(myVotes()[noteId])||0}
+function usedVotes(zone){return state.notes.filter(note=>note.zone===zone).reduce((total,note)=>total+myVotesFor(note.id),0)}
+function isMaster(){return hasMasterRole}
+function applyLocal(action){
+ if(action.type==='addNote')state.notes.push({id:action.id,zone:action.zone,text:action.text,color:action.color,votes:0,author:participantName||'Você'});
+ if(action.type==='deleteNote'){state.notes=state.notes.filter(n=>String(n.id)!==String(action.id));Object.values(state.votesByClient).forEach(v=>delete v[action.id])}
+ if(action.type==='moveNote'){const n=state.notes.find(n=>String(n.id)===String(action.id));if(!n||(n.votes||0)>0)return false;n.zone=action.zone}
+ if(action.type==='changeVote'){const n=state.notes.find(n=>String(n.id)===String(action.id));if(!n)return false;state.votesByClient[clientId]||={};const votes=state.votesByClient[clientId],current=Number(votes[action.id])||0;if(action.delta===-1){if(current<=0)return false;if(current===1)delete votes[action.id];else votes[action.id]=current-1;n.votes=Math.max(0,(n.votes||0)-1)}else{if(usedVotes(n.zone)>=3)return false;votes[action.id]=current+1;n.votes=(n.votes||0)+1}}
+ if(action.type==='setAuthorsHidden'){if(!isMaster())return false;state.authorsHidden=action.hidden}
+ if(action.type==='updateBet')state.bets[action.field]=action.value;
+ if(action.type==='clear')state=structuredClone(defaultState);
+ state.revision++;save();render();return true
+}
+async function dispatch(action){
+ if(!collaborative)return applyLocal(action);
+ try{const response=await fetch(`/api/activities/nexus/rooms/${roomId}/actions`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({clientId,name:participantName,action})});if(!response.ok){const result=await response.json().catch(()=>({}));toast(result.error||'Não foi possível aplicar a mudança.');return false}return true}catch{toast('Sem conexão com a sala. Tente novamente.');return false}
+}
+function syncPayload(payload){
+ lastHealthy=Date.now();const presence=document.getElementById('presence');presence.classList.add('online');const count=payload.participants.length;presence.textContent=`${count} ${count===1?'pessoa':'pessoas'}`;presence.title=payload.participants.join(', ');
+ hasMasterRole=Boolean(payload.isMaster);updateMasterControls();
+ if(lastRevision===payload.state.revision)return;lastRevision=payload.state.revision;state={...structuredClone(defaultState),...payload.state};save();render()
+}
+function connect(){
+ if(!collaborative)return;
+ const presence=document.getElementById('presence'),query=`clientId=${encodeURIComponent(clientId)}&name=${encodeURIComponent(participantName)}`,endpoint=`/api/activities/nexus/rooms/${roomId}/state?${query}`;
+ async function poll(){try{const response=await fetch(endpoint,{cache:'no-store'});if(!response.ok)throw new Error();syncPayload(await response.json())}catch{if(Date.now()-lastHealthy>5000){presence.classList.remove('online');presence.textContent='offline'}}}
+ const events=new EventSource(`/api/activities/nexus/rooms/${roomId}/events?${query}`);events.onmessage=e=>syncPayload(JSON.parse(e.data));events.onerror=()=>{if(Date.now()-lastHealthy>5000)presence.textContent='reconectando…'};poll();setInterval(()=>{if(!document.hidden)poll()},2000)
+}
+async function addNote(input,zone,color){const el=document.getElementById(input),text=el.value.trim();if(!text)return;const added=await dispatch({type:'addNote',id:makeId(),zone,color,text});if(added){el.value='';el.focus()}}
+async function removeNote(id){await dispatch({type:'deleteNote',id})}
+async function changeVote(id,delta){const note=state.notes.find(n=>String(n.id)===String(id));if(!note)return;if(delta===1&&usedVotes(note.zone)>=3)return toast('Você já usou os 3 votos deste quadro.');if(delta===-1&&myVotesFor(id)<=0)return toast('Você não tem voto neste post-it.');await dispatch({type:'changeVote',id,delta})}
+function dragStart(e,id){e.dataTransfer.setData('text/plain',id)}
+async function drop(e,zone){e.preventDefault();const id=e.dataTransfer.getData('text/plain');await dispatch({type:'moveNote',id,zone})}
+function render(){
+ const zones={};document.querySelectorAll('.dropzone').forEach(z=>{zones[z.id]=z;z.innerHTML='';z.ondragover=e=>e.preventDefault();z.ondrop=e=>drop(e,z.id);const used=usedVotes(z.id),budget=document.createElement('div');budget.className=`zone-budget${used>=3?' complete':''}`;budget.innerHTML=`Seus votos neste quadro <b>${used}/3</b>`;z.appendChild(budget)});
+ state.notes.forEach(n=>{const z=zones[n.zone];if(!z)return;const d=document.createElement('div');d.className=`note ${n.color}`;d.draggable=(n.votes||0)===0;d.title=d.draggable?'Arraste para mover entre quadros':'Remova os votos antes de mover';d.ondragstart=e=>dragStart(e,n.id);
+  const del=document.createElement('button');del.className='x';del.title='Excluir';del.textContent='×';del.onclick=()=>removeNote(n.id);
+  const text=document.createElement('div');text.textContent=n.text;
+  if(n.author&&!state.authorsHidden){const author=document.createElement('small');author.className='author';author.textContent=`por ${n.author}`;text.appendChild(author)}
+  const controls=document.createElement('div');controls.className='note-votes';const remove=document.createElement('button');remove.className='vote-control';remove.title='Remover meu voto';remove.textContent='−';remove.disabled=myVotesFor(n.id)===0;remove.onclick=()=>changeVote(n.id,-1);const total=document.createElement('span');total.className='vote-total';total.textContent=`⭐ ${n.votes||0}`;const mine=document.createElement('span');mine.className='my-votes';mine.textContent=myVotesFor(n.id)?`seus: ${myVotesFor(n.id)}`:'';const add=document.createElement('button');add.className='vote-control';add.title='Adicionar voto';add.textContent='+';add.disabled=usedVotes(n.zone)>=3;add.onclick=()=>changeVote(n.id,1);controls.append(remove,total,mine,add);d.append(del,text,controls);z.appendChild(d)
+ });
+ updateMasterControls();renderVotes();bindFields()
+}
+function renderVotes(){
+ const box=document.getElementById('voteList');box.innerHTML='';const notes=state.notes.filter(n=>['opp60','opp2','oppMarket'].includes(n.zone)).sort((a,b)=>(b.votes||0)-(a.votes||0));
+ if(!notes.length){box.innerHTML='<div class="hint">As oportunidades da árvore aparecerão aqui para votação.</div>';return}
+ notes.forEach(n=>{const d=document.createElement('div');d.className='vote-note';const text=document.createElement('span');text.textContent=n.text;const count=document.createElement('span');count.className='vote-count';count.textContent=`${n.votes||0} votos · seus ${myVotesFor(n.id)} `;const remove=document.createElement('button');remove.className='btn';remove.style.cssText='padding:3px 7px;margin-left:4px';remove.textContent='−';remove.disabled=myVotesFor(n.id)===0;remove.onclick=()=>changeVote(n.id,-1);const add=document.createElement('button');add.className='btn';add.style.cssText='padding:3px 7px;margin-left:4px';add.textContent='+';add.disabled=usedVotes(n.zone)>=3;add.onclick=()=>changeVote(n.id,1);count.append(remove,add);d.append(text,count);box.appendChild(d)})
+}
+function updateMasterControls(){const button=document.getElementById('authorVisibility'),mode=document.getElementById('authorMode'),hint=document.getElementById('sessionHint');button.hidden=!isMaster();button.textContent=state.authorsHidden?'👁 Revelar autores':'🙈 Ocultar autores';mode.textContent=state.authorsHidden?'Autores ocultos':'Autores revelados';mode.title=isMaster()?'Você é o master desta sala.':'O master controla quando os autores aparecem.';hint.innerHTML=state.authorsHidden?'<strong>Modo reflexão:</strong> os autores ficam ocultos até o master revelar.':'<strong>Autores revelados:</strong> os nomes agora aparecem nos post-its.'}
+function bindFields(){document.querySelectorAll('.bet input,.bet textarea').forEach(el=>{if(document.activeElement!==el)el.value=state.bets[el.id]||'';el.oninput=()=>{if(!collaborative){state.bets[el.id]=el.value;save()}};el.onblur=()=>dispatch({type:'updateBet',field:el.id,value:el.value})})}
+async function resetBoard(){if(confirm('Limpar todos os post-its, votos e apostas para todas as pessoas?')){if(await dispatch({type:'clear'}))toast('Board limpo.')}}
+function tick(){if(running){timer--;if(timer<0){timer=0;running=false}updateTimer()}}
+function updateTimer(){const m=Math.floor(timer/60),s=timer%60;document.getElementById('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function toggleTimer(){running=!running;if(running&&!timerId)timerId=setInterval(()=>{tick();if(!running){clearInterval(timerId);timerId=null}},1000)}
+document.querySelectorAll('.add input').forEach(input=>input.addEventListener('keydown',e=>{if(e.key==='Enter')input.nextElementSibling.click()}));
+document.getElementById('authorVisibility').onclick=()=>dispatch({type:'setAuthorsHidden',hidden:!state.authorsHidden});
+document.getElementById('share').onclick=async()=>{if(!collaborative)return toast('Inicie pelo servidor para criar uma sala compartilhada.');let inviteUrl=location.href;try{if(['localhost','127.0.0.1'].includes(location.hostname)){const info=await fetch('/api/info').then(r=>r.json());if(info.localAddress){const url=new URL(inviteUrl);url.hostname=info.localAddress;inviteUrl=url.href}}await navigator.clipboard.writeText(inviteUrl);toast('Link da sala copiado!')}catch{prompt('Copie o link da sala:',inviteUrl)}};
+render();updateTimer();connect();
+</script>
+</body>
+</html>
